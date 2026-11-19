@@ -67,18 +67,18 @@ call gclient sync
 REM Apply View8 patch directly with git apply
 echo =====[ Applying v8.patch ]=====
 set PATCH_FILE=%WORKSPACE_DIR%\Disassembler\v8.patch
-git apply --verbose --ignore-whitespace "%PATCH_FILE%"
+call git apply --verbose --ignore-whitespace "%PATCH_FILE%"
 if errorlevel 1 goto patch_failed
 echo Patch applied successfully
 goto patch_done
 :patch_failed
 echo Patch application failed, trying 3-way merge...
-git apply --verbose --3way --ignore-whitespace "%PATCH_FILE%"
+call git apply --verbose --3way --ignore-whitespace "%PATCH_FILE%"
 if errorlevel 1 goto patch_abort
 goto patch_done
 :patch_abort
 echo PATCH FAILED. Build aborted.
-git status
+call git status
 exit /b 1
 :patch_done
 
