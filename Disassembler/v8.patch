@@ -100,7 +100,7 @@ index 3f380e6a2ff..1f55cb9009a 100644
 --- a/src/snapshot/code-serializer.cc
 +++ b/src/snapshot/code-serializer.cc
 @@ -466,6 +466,12 @@ MaybeHandle<SharedFunctionInfo> CodeSerializer::Deserialize(
-     if (FLAG_profile_deserialization) PrintF("[Deserializing failed]\n");
+     if (v8_flags.profile_deserialization) PrintF("[Deserializing failed]\n");
      return MaybeHandle<SharedFunctionInfo>();
    }
 +
@@ -111,7 +111,7 @@ index 3f380e6a2ff..1f55cb9009a 100644
 +
    BaselineBatchCompileIfSparkplugCompiled(isolate,
                                            Script::cast(result->script()));
-   if (FLAG_profile_deserialization) {
+   if (v8_flags.profile_deserialization) {
 @@ -651,9 +657,7 @@ SerializedCodeData::SerializedCodeData(const std::vector<byte>* payload,
  
  SerializedCodeSanityCheckResult SerializedCodeData::SanityCheck(
