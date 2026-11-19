@@ -2,7 +2,7 @@
 setlocal enabledelayedexpansion
 
 set V8_VERSION=%1
-set BUILD_ARGS=%2
+set BUILD_ARGS=%~2
 
 echo ==========================================
 echo Building v8dasm for Windows x64
@@ -64,25 +64,23 @@ call git fetch --all --tags
 call git checkout %V8_VERSION%
 call gclient sync
 
-REM 应用补丁（使用多级退避策略）
+REM Apply View8 patch directly with git apply
 echo =====[ Applying v8.patch ]=====
 set PATCH_FILE=%WORKSPACE_DIR%\Disassembler\v8.patch
-set PATCH_LOG=%WORKSPACE_DIR%\scripts\v8dasm-builders\patch-utils\patch-state.log
-
-REM 调用统一的 patch 应用脚本
-call "%WORKSPACE_DIR%\scripts\v8dasm-builders\patch-utils\apply-patch.cmd" ^
-    "%PATCH_FILE%" ^
-    "%V8_DIR%" ^
-    "%PATCH_LOG%" ^
-    "true"
-
-if %errorlevel% neq 0 (
-    echo ❌ Patch application failed. Build aborted.
-    echo 请检查日志文件: %PATCH_LOG%
-    exit /b 1
-)
-
-echo ✅ Patch applied successfully
+git apply --verbose --ignore-whitespace "%PATCH_FILE%"
+if errorlevel 1 goto patch_failed
+echo Patch applied successfully
+goto patch_done
+:patch_failed
+echo Patch application failed, trying 3-way merge...
+git apply --verbose --3way --ignore-whitespace "%PATCH_FILE%"
+if errorlevel 1 goto patch_abort
+goto patch_done
+:patch_abort
+echo PATCH FAILED. Build aborted.
+git status
+exit /b 1
+:patch_done
 
 
 REM 配置构建
